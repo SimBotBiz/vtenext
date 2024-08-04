@@ -1,7 +1,7 @@
 <?php
 /*************************************
- * SPDX-FileCopyrightText: 2009-2020 Vtenext S.r.l. <info@vtenext.com> 
- * SPDX-License-Identifier: AGPL-3.0-only  
+ * SPDX-FileCopyrightText: 2009-2020 Vtenext S.r.l. <info@vtenext.com>
+ * SPDX-License-Identifier: AGPL-3.0-only
  ************************************/
 
 /**
@@ -10,16 +10,16 @@
  */
 
 class Installation_Utils {
-	
+
 	//crmv@28327
 	var $password_length_min = 8;		//if equal to 0 the check is disable
 	//crmv@28327e
-	
+
 	static function getInstallableOptionalModules() {
 		$optionalModules = Common_Install_Wizard_Utils::getInstallableModulesFromPackages();
 		return $optionalModules;
 	}
-	
+
 	// crmv@151405
 	static function getInstallableBetaModules() {
 		$optionalModules = Common_Install_Wizard_Utils::getInstallableBetaModulesFromPackages();
@@ -31,7 +31,7 @@ class Installation_Utils {
 	static function installOptionalModules($selected_modules){
 		Common_Install_Wizard_Utils::installSelectedOptionalModules($selected_modules);
 	}
-	
+
 	// crmv@151405
 	static function installBetaModules($selected_modules){
 		Common_Install_Wizard_Utils::installSelectedBetaModules($selected_modules);
@@ -62,26 +62,26 @@ class Installation_Utils {
 		//crmv@add oracle/mssql support end
 		return $dbOptions;
 	}
-	
+
 	static function checkDbConnection($db_type, $db_hostname, $db_hostport, $db_username, $db_password, $db_name, $create_db=false, $create_utf8_db=true, $root_user='', $root_password='') {
 		global $installationStrings, $vte_legacy_version;
-		
+
 		$dbCheckResult = array();
         //crmv@208173
-		
+
 		$db_type_status = false; // is there a db type?
 		$db_server_status = false; // does the db server connection exist?
 		$db_creation_failed = false; // did we try to create a database and fail?
 		$db_exist_status = false; // does the database exist?
 		$db_utf8_support = false; // does the database support utf8?
 		$vt_charset = ''; // set it based on the database charset support
-		
+
 		//Checking for database connection parameters
 		if($db_type) {
 			$conn = &NewADOConnection($db_type);
 			$db_type_status = true;
 			//crmv@constructy hostname
-			$db_hostname = Common_Install_Wizard_Utils::constructHostname($db_type,$db_hostname,$db_hostport);
+			$db_hostname = Common_Install_Wizard_Utils::constructHostname($db_type, $db_hostname, $db_hostport);
 			//crmv@constructy hostname end
 			//crmv@fix-oracle
 			if ($db_type == 'oci8po') {
@@ -89,7 +89,7 @@ class Installation_Utils {
 			} else {
 				$result_conn = @$conn->Connect($db_hostname,$db_username,$db_password);
 			}
-						
+
 			if($result_conn) {
 			//crmv@fix-oracle e
 				$db_server_status = true;
@@ -112,19 +112,19 @@ class Installation_Utils {
 					$createdb_conn = &NewADOConnection($db_type);
 					if($createdb_conn->Connect($db_hostname, $root_user, $root_password)) {
 						//crmv@fix utf8
-						if($create_utf8_db == 'true') { 
+						if($create_utf8_db == 'true') {
 							if(Common_Install_Wizard_Utils::isMySQL($db_type))
-								$options['MYSQL'] = " default character set utf8 default collate utf8_general_ci"; 
+								$options['MYSQL'] = " default character set utf8 default collate utf8_general_ci";
 							$db_utf8_support = true;
-						}	
+						}
 						//crmv@fix utf8 end
-						//crmv@fix create database					
+						//crmv@fix create database
 						$datadict = NewDataDictionary($createdb_conn,$createdb_conn->dataProvider);
 						$sql = @$datadict->CreateDatabase($db_name,$options);
 						if ($sql){
 							if (@$datadict->ExecuteSQLArray($sql) == 2)
 								$db_creation_failed = false;
-						}	
+						}
 						//crmv@fix create database end
 						$createdb_conn->Close();
 					}
@@ -142,10 +142,10 @@ class Installation_Utils {
 			}
 		}
 		$dbCheckResult['db_utf8_support'] = $db_utf8_support;
-		
+
 		$error_msg = '';
 		$error_msg_info = '';
-		
+
 		if(!$db_type_status || !$db_server_status) {
 			$error_msg = $installationStrings['ERR_DATABASE_CONNECTION_FAILED'].'. '.$installationStrings['ERR_INVALID_MYSQL_PARAMETERS'];
 			$error_msg_info = $installationStrings['MSG_LIST_REASONS'].':<br>
@@ -197,11 +197,11 @@ class Installation_Utils {
         return (stristr($db_character_set, 'utf8') && stristr($db_collation_type, 'utf8'));
     }
     //crmv@208173e
-	
+
 	//crmv@28327
 	function checkPasswordCriteria($user_password,$row) {
 		if ($this->password_length_min == 0) {
-			return true; 
+			return true;
 		}
 		if (strlen($user_password) < $this->password_length_min) {
 			return false;
@@ -218,7 +218,7 @@ class Installation_Utils {
 }
 
 class ConfigFile_Utils {
-	
+
 	private $rootDirectory;
 	private $dbHostname;
 	private $dbPort;
@@ -231,11 +231,11 @@ class ConfigFile_Utils {
 	private $vtCharset;
 	private $currencyName;
 	private $adminEmail;
-	
+
 	function __construct($configFileParameters) {
 		if (isset($configFileParameters['root_directory']))
 			$this->rootDirectory = $configFileParameters['root_directory'];
-			
+
 		if (isset($configFileParameters['db_hostname'])) {
 			//crmv@fix connection string
 			$this->dbHostname = $configFileParameters['db_hostname'];
@@ -246,7 +246,7 @@ class ConfigFile_Utils {
 		if (isset($configFileParameters['db_password'])) $this->dbPassword = $configFileParameters['db_password'];
 		if (isset($configFileParameters['db_name'])) $this->dbName = $configFileParameters['db_name'];
 		if (isset($configFileParameters['db_type'])) $this->dbType = $configFileParameters['db_type'];
-		if (isset($configFileParameters['site_URL'])) $this->siteUrl = $configFileParameters['site_URL']; 
+		if (isset($configFileParameters['site_URL'])) $this->siteUrl = $configFileParameters['site_URL'];
 		if (isset($configFileParameters['admin_email'])) $this->adminEmail = $configFileParameters['admin_email'];
 		if (isset($configFileParameters['currency_name'])) $this->currencyName = $configFileParameters['currency_name'];
 		if (isset($configFileParameters['vt_charset'])) $this->vtCharset = $configFileParameters['vt_charset'];
@@ -297,7 +297,7 @@ class ConfigFile_Utils {
 		    $is_writable = is_writable('config.inc.php');
 		else
 			$is_writable = is_writable('.');
-	
+
 		/* open template configuration file read only */
 		$templateFilename = 'config.template.php';
 		$templateHandle = fopen($templateFilename, "r");
@@ -308,7 +308,7 @@ class ConfigFile_Utils {
 			if($includeHandle) {
 			   	while (!feof($templateHandle)) {
 	  				$buffer = fgets($templateHandle);
-	
+
 		 			/* replace _DBC_ variable */
 		  			$buffer = str_replace( "_DBC_SERVER_", $this->dbHostname, $buffer);
 		  			$buffer = str_replace( "_DBC_PORT_", $this->dbPort, $buffer);
@@ -316,9 +316,9 @@ class ConfigFile_Utils {
 		  			$buffer = str_replace( "_DBC_PASS_", $this->dbPassword, $buffer);
 		  			$buffer = str_replace( "_DBC_NAME_", $this->dbName, $buffer);
 		  			$buffer = str_replace( "_DBC_TYPE_", $this->dbType, $buffer);
-		
+
 		  			$buffer = str_replace( "_SITE_URL_", $this->siteUrl, $buffer);
-		
+
 		  			/* replace dir variable */
 		  			$buffer = str_replace( "_VT_ROOTDIR_", $this->rootDirectory, $buffer);
 		  			$buffer = str_replace( "_VT_CACHEDIR_", $this->cacheDir, $buffer);
@@ -331,21 +331,21 @@ class ConfigFile_Utils {
 					//crmv@add db options end
 					/* replace charset variable */
 					$buffer = str_replace( "_VT_CHARSET_", $this->vtCharset, $buffer);
-		
+
 			      	/* replace master currency variable */
 		  			$buffer = str_replace( "_MASTER_CURRENCY_", $this->currencyName, $buffer);
-		
+
 			      	/* replace the application unique key variable */
 		      		// crmv@167234
 					$string = time().rand(1,9999999).md5($this->rootDirectory);
 		      		$buffer = str_replace( "_VT_APP_UNIQKEY_", md5($string) , $buffer);
 					// crmv@167234e
-					
+
 					$buffer = str_replace( "_CSRF_SECRET_", $this->csrf_generate_secret(), $buffer); // crmv@171581
-					
+
 					/* replace support email variable */
 					$buffer = str_replace( "_USER_SUPPORT_EMAIL_", $this->adminEmail, $buffer);
-					
+
 					// crmv@195213
 					$characters = '0123456789abcdefghijklmnopqrstuvwxyz';
 					$cf_prefix = '';
@@ -355,20 +355,20 @@ class ConfigFile_Utils {
 					}
 					$buffer = str_replace( "_CF_PREFIX_", $cf_prefix, $buffer);
 					// crmv@195213e
-		
+
 		      		fwrite($includeHandle, $buffer);
-	      		}	
+	      		}
 	  			fclose($includeHandle);
-	  		}	
+	  		}
 	  		fclose($templateHandle);
 	  	}
-	  	
-	  	if ($templateHandle && $includeHandle) { 
+
+	  	if ($templateHandle && $includeHandle) {
 	  		return true;
-	  	} 
+	  	}
 	  	return false;
 	}
-	
+
 	// crmv@171581
 	public function csrf_generate_secret($len = 32) {
 		$r = '';
@@ -379,14 +379,14 @@ class ConfigFile_Utils {
 		return sha1($r);
 	}
 	// crmv@171581e
-	
+
 	// crmv@178158 - removed unused function
 }
 
 class Common_Install_Wizard_Utils {
-	
+
 	public static $login_expire_time = 2592000; // crmv@27520 (one month)
-	
+
 	public static $recommendedDirectives = array (
 		'safe_mode' => 'Off',
 		'display_errors' => 'On',
@@ -402,7 +402,7 @@ class Common_Install_Wizard_Utils {
 		'BCMath' => 'On', // crmv@171524
 		//'session.gc_maxlifetime' => 2592000,  // crmv@27520 (one month)
 	);
-	
+
 	// crmv@127567 crmv@140903
 	public static $writableFilesAndFolders = array (
 		'Configuration File' => './config.inc.php',
@@ -427,7 +427,7 @@ class Common_Install_Wizard_Utils {
 		'SmartOptimizer Cache Directory' => './smartoptimizer/cache/',	//crmv@24713m
 	);
 	// crmv@127567e crmv@140903e
-	
+
 	public static $gdInfoAlternate = 'function gd_info() {
 		$array = Array(
 	               "GD Version" => "",
@@ -443,12 +443,12 @@ class Common_Install_Wizard_Utils {
 	               "XBM Support" => 0
 	             );
 		       $gif_support = 0;
-		
+
 		       ob_start();
 		       eval("phpinfo();");
 		       $info = ob_get_contents();
 		       ob_end_clean();
-		
+
 		       foreach(explode("\n", $info) as $line) {
 		           if(strpos($line, "GD Version")!==false)
 		               $array["GD Version"] = trim(str_replace("GD Version", "", strip_tags($line)));
@@ -473,44 +473,44 @@ class Common_Install_Wizard_Utils {
 		           if(strpos($line, "XBM Support")!==false)
 		               $array["XBM Support"] = trim(str_replace("XBM Support", "", strip_tags($line)));
 		       }
-		
+
 		       if($gif_support==="enabled") {
 		           $array["GIF Read Support"]  = 1;
 		           $array["GIF Create Support"] = 1;
 		       }
-		
+
 		       if($array["FreeType Support"]==="enabled"){
 		           $array["FreeType Support"] = 1;    }
-		
+
 		       if($array["T1Lib Support"]==="enabled")
 		           $array["T1Lib Support"] = 1;
-		
+
 		       if($array["GIF Read Support"]==="enabled"){
 		           $array["GIF Read Support"] = 1;    }
-		
+
 		       if($array["GIF Create Support"]==="enabled")
 		           $array["GIF Create Support"] = 1;
-		
+
 		       if($array["JPG Support"]==="enabled")
 		           $array["JPG Support"] = 1;
-		
+
 		       if($array["PNG Support"]==="enabled")
 		           $array["PNG Support"] = 1;
-		
+
 		       if($array["WBMP Support"]==="enabled")
 		           $array["WBMP Support"] = 1;
-		
+
 		       if($array["XBM Support"]==="enabled")
 		           $array["XBM Support"] = 1;
-		
+
 		       return $array;
-		
+
 		}';
-		
+
 	function getRecommendedDirectives() {
 		return self::$recommendedDirectives;
-	}		
-	
+	}
+
 	/** Function to check the file access is made within web root directory. */
 	static function checkFileAccess($filepath) {
 		global $root_directory, $installationStrings;
@@ -519,22 +519,22 @@ class Common_Install_Wizard_Utils {
 		if(empty($use_root_directory)) {
 			$use_root_directory = realpath(dirname(__FILE__).'/../../..');
 		}
-	
+
 		$realfilepath = realpath($filepath);
-	
+
 		/** Replace all \\ with \ first */
 		$realfilepath = str_replace('\\\\', '\\', $realfilepath);
 		$rootdirpath  = str_replace('\\\\', '\\', $use_root_directory);
-	
+
 		/** Replace all \ with / now */
 		$realfilepath = str_replace('\\', '/', $realfilepath);
 		$rootdirpath  = str_replace('\\', '/', $rootdirpath);
-		
+
 		if(stripos($realfilepath, $rootdirpath) !== 0) {
 			die($installationStrings['ERR_RESTRICTED_FILE_ACCESS']);
 		}
 	}
-	
+
 	static function getFailedPermissionsFiles() {
 		$writableFilesAndFolders = Common_Install_Wizard_Utils::$writableFilesAndFolders;
 		$failedPermissions = array();
@@ -546,7 +546,7 @@ class Common_Install_Wizard_Utils {
 		}
 		return $failedPermissions;
 	}
-	
+
 	static function getCurrentDirectiveValue() {
 		$directiveValues = array();
 		if (ini_get('safe_mode') == '1' || stripos(ini_get('safe_mode'), 'On') > -1)
@@ -566,7 +566,7 @@ class Common_Install_Wizard_Utils {
 		$errorReportingValue = E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT; // crmv@146653
 		if (ini_get('error_reporting') != $errorReportingValue)
 			$directiveValues['error_reporting'] = 'NOT RECOMMENDED';
-		
+
 		// crmv@146653
 		if (ini_get('log_errors') == '' || ini_get('log_errors') == '0' || stripos(ini_get('log_errors'), 'Off') > -1)
 			$directiveValues['log_errors'] = 'Off';
@@ -630,33 +630,33 @@ class Common_Install_Wizard_Utils {
 		}
 		return $mysql_extension;
 	}
-	
-	static function isMySQL($dbType) { 
+
+	static function isMySQL($dbType) {
 		return (stripos($dbType ,'mysql') === 0);
 	}
-	
-    static function isOracle($dbType) { 
-    	return (stripos($dbType ,'oci8') === 0); 
+
+    static function isOracle($dbType) {
+    	return (stripos($dbType ,'oci8') === 0);
     }
     //crmv@add mssql support
-    static function isMssql($dbType) { 
-    	return (stripos($dbType ,'mssql') === 0); 
+    static function isMssql($dbType) {
+    	return (stripos($dbType ,'mssql') === 0);
     }
     //crmv@add mssql support end
-	
+
 	// crmv@151405
-	
+
 	public static function getInstallableModulesFromPackages() {
 		$packageDir = 'packages/vte/optional/';
 		$optionalModules = (array) self::getInstallableModulesFromDirectory($packageDir);
-		
+
 		return $optionalModules;
 	}
 
 	public static function getInstallableBetaModulesFromPackages() {
 		$packageDir = 'packages/vte/beta/vte/';
 		$betaModules = (array) self::getInstallableModulesFromDirectory($packageDir);
-		
+
 		foreach ($betaModules as $option => &$modules) {
 			if (is_array($modules)) {
 				foreach ($modules as $module => &$details) {
@@ -666,10 +666,10 @@ class Common_Install_Wizard_Utils {
 			}
 			unset($modules);
 		}
-		
+
 		return $betaModules;
 	}
-	
+
 	public static function getInstallableModulesFromDirectory($packageDir) {
 		global $optionalModuleStrings;
 		global $install_tmp;
@@ -682,25 +682,25 @@ class Common_Install_Wizard_Utils {
 		$installableModules = array();
 		while (false !== ($file = readdir($handle))) {
 			$packageNameParts = explode(".", $file);
-			
+
 			if ($packageNameParts[count($packageNameParts) - 1] != 'zip') {
 				continue;
 			}
-			
+
 			array_pop($packageNameParts);
 			$packageName = implode("", $packageNameParts);
-			
+
 			if (!empty($packageName)) {
 				$packagepath = $packageDir.$file;
 				$package = new Vtecrm_Package();
 				$moduleName = $package->getModuleNameFromZip($packagepath);
-				
+
 				if ($package->isModuleBundle()) {
 					$bundleOptionalModule = array();
 					$unzip = new Vtecrm_Unzip($packagepath);
 					$unzip->unzipAllEx($package->getTemporaryFilePath());
 					$moduleInfoList = $package->getAvailableModuleInfoFromModuleBundle();
-					
+
 					foreach ($moduleInfoList as $moduleInfo) {
 						$moduleInfo = (array) $moduleInfo;
 						$packagepath = $package->getTemporaryFilePath($moduleInfo['filepath']);
@@ -708,30 +708,30 @@ class Common_Install_Wizard_Utils {
 						$subModule->getModuleNameFromZip($packagepath);
 						$bundleOptionalModule = self::getOptionalModuleDetails($subModule, $bundleOptionalModule);
 					}
-					
+
 					$moduleDetails = array();
 					$moduleDetails['description'] = $optionalModuleStrings[$moduleName . '_description'];
 					$moduleDetails['selected'] = true;
 					$moduleDetails['enabled'] = true;
-					
+
 					$migrationAction = 'install';
 					if (count($bundleOptionalModule['update']) > 0) {
 						$moduleDetails['enabled'] = false;
 						$migrationAction = 'update';
 					}
-					
+
 					$installableModules[$migrationAction]['module'][$moduleName] = $moduleDetails;
 				} else {
 					if ($package->isLanguageType()) {
 						$package = new Vtecrm_Language();
 						$package->getModuleNameFromZip($packagepath);
 					}
-					
+
 					$installableModules = self::getOptionalModuleDetails($package, $installableModules);
 				}
 			}
 		}
-		
+
 		if (is_array($installableModules['install']['language']) && is_array($installableModules['install']['module'])) {
 			$installableModules['install'] = array_merge($installableModules['install']['module'], $installableModules['install']['language']);
 		} elseif (is_array($installableModules['install']['language']) && !is_array($installableModules['install']['module'])) {
@@ -739,7 +739,7 @@ class Common_Install_Wizard_Utils {
 		} else {
 			$installableModules['install'] = $installableModules['install']['module'];
 		}
-		
+
 		if (is_array($installableModules['update']['language']) && is_array($installableModules['update']['module'])) {
 			$installableModules['update'] = array_merge($installableModules['update']['module'], $installableModules['update']['language']);
 		} elseif (is_array($installableModules['update']['language']) && !is_array($installableModules['update']['module'])) {
@@ -747,12 +747,12 @@ class Common_Install_Wizard_Utils {
 		} else {
 			$installableModules['update'] = $installableModules['update']['module'];
 		}
-		
+
 		return $installableModules;
 	}
-	
+
 	// crmv@151405e
-	
+
 	/**
 	 *
 	 * @param String $packagepath - path to the package file.
@@ -760,7 +760,7 @@ class Common_Install_Wizard_Utils {
 	 */
 	static function getOptionalModuleDetails($package, $optionalModulesInfo) {
 		global $optionalModuleStrings,$table_prefix;
-		
+
 		$moduleUpdateVersion = $package->getVersion();
 		$moduleForVersion = $package->getDependentVersion();//crmv@207991
 		$moduleMaxVersion = $package->getDependentMaxVersion();//crmv@207991
@@ -807,16 +807,16 @@ class Common_Install_Wizard_Utils {
 			$optionalModulesInfo[$migrationAction][$type][$moduleName] = $moduleDetails;
 		}
 		return $optionalModulesInfo;
-	}	
-	
+	}
+
 	// Function to install/update mandatory modules
 	public static function installMandatoryModules($skip_modules=array()) {
 		require_once('vtlib/Vtecrm/Package.php');//crmv@207871
 		require_once('vtlib/Vtecrm/Module.php');//crmv@207871
 		require_once('include/utils/utils.php');
 		//crmv@change packets path
-		if ($handle = opendir('packages/vte/mandatory')) {		 
-		//crmv@change packets path end	   
+		if ($handle = opendir('packages/vte/mandatory')) {
+		//crmv@change packets path end
 		    while (false !== ($file = readdir($handle))) {
 				$packageNameParts = explode(".",$file);
 				if($packageNameParts[count($packageNameParts)-1] != 'zip'){
@@ -855,7 +855,7 @@ class Common_Install_Wizard_Utils {
 		$moduleList = array();
 		//crmv@change packets path
 		if ($handle = opendir('packages/vte/mandatory')) {
-		//crmv@change packets path end	
+		//crmv@change packets path end
 		    while (false !== ($file = readdir($handle))) {
 				$packageNameParts = explode(".",$file);
 				if($packageNameParts[count($packageNameParts)-1] != 'zip'){
@@ -877,7 +877,7 @@ class Common_Install_Wizard_Utils {
 	}
 
 	// crmv@151405
-	
+
 	public static function installSelectedOptionalModules($selected_modules, $source_directory = '', $destination_directory = '') {
 		$packageDir = 'packages/vte/optional/';
 		self::installSelectedModules($packageDir, $selected_modules, $source_directory, $destination_directory);
@@ -894,35 +894,35 @@ class Common_Install_Wizard_Utils {
 		require_once('include/utils/utils.php');
 
 		$selected_modules = explode(":", $selected_modules);
-		
+
 		$languagePacks = array();
-		
+
 		if ($handle = opendir($packageDir)) {
 			while (false !== ($file = readdir($handle))) {
 				$filename_arr = explode(".", $file);
-				
+
 				if ($filename_arr[count($filename_arr) - 1] != 'zip') {
 					continue;
 				}
-				
+
 				$packagename = $filename_arr[0];
 				$packagepath = $packageDir.$file;
-				
+
 				$package = new Vtecrm_Package();
 				$module = $package->getModuleNameFromZip($packagepath);
-				
+
 				if (!empty($packagename) && in_array($module, $selected_modules)) {
 					if ($package->isLanguageType($packagepath)) {
 						$languagePacks[$module] = $packagepath;
 						continue;
 					}
-					
+
 					if ($module != null) {
 						if ($package->isModuleBundle()) {
 							$unzip = new Vtecrm_Unzip($packagepath);
 							$unzip->unzipAllEx($package->getTemporaryFilePath());
 							$moduleInfoList = $package->getAvailableModuleInfoFromModuleBundle();
-							
+
 							foreach ($moduleInfoList as $moduleInfo) {
 								$moduleInfo = (array) $moduleInfo;
 								$packagepath = $package->getTemporaryFilePath($moduleInfo['filepath']);
@@ -946,49 +946,49 @@ class Common_Install_Wizard_Utils {
 					}
 				}
 			}
-			
+
 			closedir($handle);
 		}
-		
+
 		foreach ($languagePacks as $module => $packagepath) {
 			installVtlibModule($module, $packagepath);
 			continue;
 		}
 	}
-	
+
 	// crmv@151405e
-	
+
 	//Function to to rename the installation file and folder so that no one destroys the setup
 	public static function renameInstallationFiles() {
 		$renamefile = uniqid(rand(), true);
-		
+
 		$ins_file_renamed = true;
 		if(!@rename("install.php", $renamefile."install.php.txt")) {
 			if (@copy ("install.php", $renamefile."install.php.txt")) {
 				if(!@unlink("install.php")) {
-					$ins_file_renamed = false;			
+					$ins_file_renamed = false;
 				}
 			} else {
 				$ins_file_renamed = false;
 			}
 		}
-		
+
 		$ins_dir_renamed = true;
 		if(!@rename("install/", $renamefile."install/")) {
 			if (@copy ("install/", $renamefile."install/")) {
 				if(!@unlink("install/")) {
-					$ins_dir_renamed = false;			
+					$ins_dir_renamed = false;
 				}
 			} else {
 				$ins_dir_renamed = false;
 			}
 		}
-		
+
 		$result = array();
 		$result['renamefile'] = $renamefile;
 		$result['install_file_renamed'] = $ins_file_renamed;
 		$result['install_directory_renamed'] = $ins_dir_renamed;
-		
+
 		return $result;
 	}
 
@@ -1001,17 +1001,12 @@ class Common_Install_Wizard_Utils {
 		}
 		return $mysql_server_version;
 	}
-	//crmv@fix hostname
-	public static function constructHostname($dbtype,$hostname,$port){
-		if ($dbtype == 'mysqli' || $dbtype == 'mssqlnative') { // crmv@155585
-			return $hostname;
-		} else {
-			if ($port == '') $port =ConfigFile_Utils::getDbDefaultPort($dbtype);
-			$separator =ConfigFile_Utils::getDbDefaultPortSeparator($dbtype);
-			return $hostname.$separator.$port;
-		}
+
+	public static function constructHostname($dbtype, $hostname, $port) {
+		$port = trim($port) || ConfigFile_Utils::getDbDefaultPort($dbtype);
+		$separator = ConfigFile_Utils::getDbDefaultPortSeparator($dbtype);
+		return $hostname.$separator.$port;
 	}
-	//crmv@fix hostname end
 
 	public static function disableMorph() {
 		if (file_exists('DisableMorphsuit.php')) {
@@ -1055,7 +1050,7 @@ function get_logo_install($mode){
 	$logo_path = 'themes/logos/';
 	if ($mode == 'favicon')
 		$extension = 'ico';
-	else		
+	else
 		$extension = 'png';
 	$logo_path.=$enterprise_mode."_".$mode.".".$extension;
 	return $logo_path;
