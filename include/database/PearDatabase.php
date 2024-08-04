@@ -1,7 +1,7 @@
 <?php
 /*************************************
- * SPDX-FileCopyrightText: 2009-2020 Vtenext S.r.l. <info@vtenext.com> 
- * SPDX-License-Identifier: AGPL-3.0-only  
+ * SPDX-FileCopyrightText: 2009-2020 Vtenext S.r.l. <info@vtenext.com>
+ * SPDX-License-Identifier: AGPL-3.0-only
  ************************************/
 
 require_once('include/logging.php');
@@ -62,19 +62,19 @@ class PreparedQMark2SqlValue {
         $this->ctr = 0;
         $this->vals = $vals;
     }
-    function call($matches){ 
-            /** 
-             * If ? is found as expected in regex used in function convert2sql 
-             * /('[^']*')|(\"[^\"]*\")|([?])/ 
-             * 
-             */ 
-            if($matches[3]=='?'){ 
-                    $this->ctr++; 
-                    return $this->vals[$this->ctr-1]; 
-            }else{ 
-                    return $matches[0]; 
-            } 
-    } 
+    function call($matches){
+            /**
+             * If ? is found as expected in regex used in function convert2sql
+             * /('[^']*')|(\"[^\"]*\")|([?])/
+             *
+             */
+            if($matches[3]=='?'){
+                    $this->ctr++;
+                    return $this->vals[$this->ctr-1];
+            }else{
+                    return $matches[0];
+            }
+    }
 }
 
 
@@ -169,9 +169,9 @@ class PearDatabase{
     var $datadict = null;
     //crmv@datadict end
     var $enableVTELog = true;
-	
+
 	public $deadlockRetry = 2; // crmv@62863
-	
+
 	public $statistics = array();
 
     // If you want to avoid executing PreparedStatement, set this to true
@@ -186,11 +186,11 @@ class PearDatabase{
 	var $enableCache = false;
 
 	var $_cacheinstance = false; // Will be auto-matically initialized if $enableCache is true
-	
+
 	var $slave = false; // crmv@185894
-	
+
 	var $clientFlags = false; // crmv@193619
-	
+
 	/**
 	 * API's to control cache behavior
 	 */
@@ -267,7 +267,7 @@ class PearDatabase{
 		if(isset($this->dbOptions)) $this->dbOptions[$name] = $value;
 		if(isset($this->database)) $this->database->setOption($name, $value);
     }
-    
+
     // crmv@193619
 	function setSSLconnection(){
 		if ($this->isMySQL()) {
@@ -494,10 +494,10 @@ class PearDatabase{
 		// END
 		$log->debug('query being executed : '.$sql);
 		$this->checkConnection();
-	
+
 		$this->executeSetNamesUTF8SQL();
 		$this->logQuery($sql); // crmv@63349
-	
+
 		$sql_start_time = microtime(true);
 		// crmv@62863 - MySql deadlock handling
 		$tries = 0;
@@ -512,16 +512,16 @@ class PearDatabase{
 		} while ($tryAgain);
 		// crmv@62863e
 		$this->logSqlTiming($sql_start_time, microtime(true), $sql);
-	
+
 		$this->lastmysqlrow = -1;
 		if(!$result)$this->checkError($msg.' Query Failed:' . $sql . '::', $dieOnError);
-	
+
 		// Performance Tuning: Cache the query result
 		if($this->isCacheEnabled()) {
 			$this->getCacheInstance()->cacheResult($result, $sql);
 		}
 		// END
-		
+
 		//crmv@47905bis		crmv@70475
 		if (!$temp && !$this->slave) { // crmv@185894
 	    	$cache_emptiers = array('create table','drop table','update table');
@@ -534,7 +534,7 @@ class PearDatabase{
 			}
 		}
 		//crmv@47905bis e	crmv@70475e
-		
+
 		return $result;
     }
 
@@ -625,7 +625,7 @@ class PearDatabase{
 			$this->getCacheInstance()->cacheResult($result, $sql, $params);
 		}
 		// END
-		
+
 		//crmv@47905bis		crmv@70475
 		if (!$temp && !$this->slave) { // crmv@185894
 	    	$cache_emptiers = array('create table','drop table','update table','rename table');
@@ -638,7 +638,7 @@ class PearDatabase{
 			}
 		}
 		//crmv@47905bis e	crmv@70475e
-		
+
 		return $result;
 	}
 
@@ -648,11 +648,11 @@ class PearDatabase{
 	 * issuing multiple insert queries.
 	 */
 	function bulkInsert($table, $columns, $rows = array(), $chunkSize = 100, $ignore = false) { // crmv@185894
-		
+
 		if (!is_array($rows) || count($rows) == 0) return;
-		
+
 		if (is_array($columns)) $this->format_columns($columns);
-		
+
 		if ($this->isMysql() || $this->isMsSql()) {
 			$chunks = array_chunk($rows, $chunkSize);
 			$ignoreSql = ($ignore ? 'IGNORE ' : ''); // crmv@185894
@@ -679,7 +679,7 @@ class PearDatabase{
 						$sql .= " INTO $table (".implode(',', $columns).") VALUES ";
 					} else {
 						$sql .= " INTO $table VALUES ";
-					}				
+					}
 					$sql .= "(".implode(',', array_map(array($this, 'quote'), $row)).")";
 				}
 				$sql .= " SELECT * FROM dual";
@@ -792,10 +792,10 @@ class PearDatabase{
 	$sql_start_time = microtime(true);
 	$result = $this->database->SelectLimit($sql,$count,$start);
 	$this->logSqlTiming($sql_start_time, microtime(true),$result->sql); //crmv@47905
-	
-	if(!$result) $this->checkError($msg.' Limit Query Failed:' . $sql . '::', $dieOnError);	
-	return $result;		
-    }    
+
+	if(!$result) $this->checkError($msg.' Limit Query Failed:' . $sql . '::', $dieOnError);
+	return $result;
+    }
     //crmv@limit multi-database
     function limitpQuery($sql,$start,$count,$params=Array(),$dieOnError=false, $msg='')
     {
@@ -816,9 +816,9 @@ class PearDatabase{
 	$sql_start_time = microtime(true);
 	$result = $this->database->SelectLimit($sql,$count,$start);
 	$this->logSqlTiming($sql_start_time, microtime(true),$result->sql); //crmv@47905
-	
-	if(!$result) $this->checkError($msg.' Limit pQuery Failed:' . $sql . '::', $dieOnError);	
-	return $result;		
+
+	if(!$result) $this->checkError($msg.' Limit pQuery Failed:' . $sql . '::', $dieOnError);
+	return $result;
     }
     //crmv@limit multi-database end
     function getOne($sql, $dieOnError=false, $msg='')
@@ -831,7 +831,7 @@ class PearDatabase{
 	$sql_start_time = microtime(true);
 	$result = $this->database->GetOne($sql);
 	$this->logSqlTiming($sql_start_time, microtime(true),$sql); //crmv@47905
-	
+
 	if(!$result) $this->checkError($msg.' Get one Query Failed:' . $sql . '::', $dieOnError);
 	return $result;
     }
@@ -1208,13 +1208,17 @@ class PearDatabase{
 		//crmv@datadict add
 		$this->datadict = NewDataDictionary($this->database);
 		//crmv@datadict add end
-		
+
+		if ($dbconfigoption['ssl']){
+			$this->setSSLconnection();
+		}
+
 		// crmv@193619
 		if (!empty($this->clientFlags)) {
 			$this->database->clientFlags = $this->clientFlags;
 		}
 		// crmv@193619e
-		
+
 		// crmv@65455
 		if ($this->usePersistent) {
 			$this->database->PConnect($this->dbHostName, $this->userName, $this->userPassword, $this->dbName);
@@ -1288,13 +1292,7 @@ class PearDatabase{
 		    $this->setDatabaseType($dbconfig['db_type']);
 	    	$this->setUserName($dbconfig['db_username']);
 		    $this->setUserPassword($dbconfig['db_password']);
-		    //crmv@56443
-			if($this->dbType == 'mysqli' || $this->dbType == 'mssqlnative'){ // crmv@155585
-				$this->setDatabaseHost( $dbconfig['db_server']);
-			} else {
-				$this->setDatabaseHost( $dbconfig['db_hostname']);
-			}
-			//crmv@56443e
+		    $this->setDatabaseHost($dbconfig['db_hostname']);
 	    	$this->setDatabaseName($dbconfig['db_name']);
 		    $this->dbOptions = $dbconfigoption;
 		    if($dbconfig['log_sql'])
@@ -1305,7 +1303,7 @@ class PearDatabase{
 	    	$this->setDatabaseName($dbname);
 		    $this->setUserName($username);
 		    $this->setUserPassword($passwd);
-	    	$this->setDatabaseHost( $host);
+	    	$this->setDatabaseHost($host);
 		}
 		// crmv@124454
 		if ($charset) {
@@ -1354,7 +1352,9 @@ class PearDatabase{
 
 		$this->println("--------------Starting the table creation------------------");
 		$result = $schema->ExecuteSchema( $sql, $this->continueInstallOnError );
-		if($result) print $db->errorMsg();
+		if ($result < 2) {
+			$this->println("ADODB error ".$db->ErrorMsg());
+		}
 		// needs to return in a decent way
 		$this->println("ADODB createTables ".$schemaFile." status=".$result);
 		return $result;
@@ -1475,32 +1475,32 @@ class PearDatabase{
 	function getMultiUniqueID($seqname, $length) {
 		$list = array();
 		if ($length == 0) return $list;
-		
+
 		// first iteration is standard, to be sure the table is created
 		// this also calls the checkConnection
 		$list[] = $this->getUniqueID($seqname);
-		
+
 		// check if some error occurred
 		if ($list[0] === false) return false; // crmv@155585
-		
+
 		// crmv@155585
 		if ($list[0] === 0) {
 			$list[0] = $this->getUniqueID($seqname);
 		}
 		// crmv@155585e
-		
+
 		// return immediately if no more ids are required
 		if ($length == 1) return $list;
-		
+
 		$table = $seqname.'_seq';
 		$inc = intval($length-1);
-		
+
 		// disable log
 		$savelog = $this->database->_logsql;
 		$this->database->_logsql = false;
-		
+
 		$connid = $this->database->_connectionID;
-		
+
 		// now do some optimized calls, according to the db type
 		if ($this->isMysql()) {
 			$table = str_replace('.', '`.`', $table); //crmv@185894
@@ -1564,10 +1564,10 @@ class PearDatabase{
 				}
 			}
 		}
-		
+
 		// restore the log
 		$this->_logsql = $savelog;
-				
+
 		return $list;
 	}
 
@@ -1607,15 +1607,15 @@ class PearDatabase{
 	}
 
 	//crmv@89444
-	function mysql_escape_mimic($inp) { 
-		if(is_array($inp)) 
-			return array_map(__METHOD__, $inp); 
+	function mysql_escape_mimic($inp) {
+		if(is_array($inp))
+			return array_map(__METHOD__, $inp);
 
-		if(!empty($inp) && is_string($inp)) { 
-			return str_replace(array('\\', "\0", "\n", "\r", "'", '"', "\x1a"), array('\\\\', '\\0', '\\n', '\\r', "\\'", '\\"', '\\Z'), $inp); 
-		} 
+		if(!empty($inp) && is_string($inp)) {
+			return str_replace(array('\\', "\0", "\n", "\r", "'", '"', "\x1a"), array('\\\\', '\\0', '\\n', '\\r', "\\'", '\\"', '\\Z'), $inp);
+		}
 
-		return $inp; 
+		return $inp;
 	}
 	//crmv@89444e
 
@@ -1669,7 +1669,7 @@ class PearDatabase{
 		}
 		//crmv@26687e
 	}
-	
+
 	// crmv@165801
 	/**
 	 * like format_columns, but work on a single column only
@@ -1679,7 +1679,7 @@ class PearDatabase{
 		return $column;
 	}
 	// crmv@165801e
-	
+
 	//crmv@78573
 	/**
 	 * Check if a temporary table exists
@@ -1704,7 +1704,7 @@ class PearDatabase{
 		return false;
 	}
 	//crmv@78573e
-	
+
 	// crmv@99131
 	function table_exist($tablename,$temp = false, $skipCache = false){
 		if (($this->isMssql() || $this->isMysql()) && $temp) {	//crmv@21249
@@ -1720,7 +1720,7 @@ class PearDatabase{
 				if ($tables === false) {
 					$tables = array_flip($this->database->MetaTables('TABLES'));
 					$cache->set($tables);
-				}			
+				}
 			}
 	 		(isset($tables[$tablename])) ? $return = 1 : $return = 0;
 	 		return $return;
@@ -1740,9 +1740,9 @@ class PearDatabase{
 	 * in the 3rd parameter to skip the standard union merge.
 	 */
 	function makeUnionSelect($sql, $conditions, $distinct = true, &$params = array(), $cloneTables = array()) {
-		
+
 		if (empty($conditions)) return $sql;
-		
+
 		$repTables = array();
 		if (count($cloneTables) > 0 && count($conditions) > 1) {
 			foreach ($cloneTables as $table) {
@@ -1753,7 +1753,7 @@ class PearDatabase{
 				}
 			}
 		}
-		
+
 		$i = 0;
 		$newsql = array();
 		foreach ($conditions as $cond) {
@@ -1773,18 +1773,18 @@ class PearDatabase{
 			}
 			++$i;
 		}
-		
+
 		if ($params && count($params) > 0) {
 			// I have to duplicate the params too
 			$params = $this->flatten_array(array_fill(0, count($conditions), $params));
 		}
-		
+
 		$join = $distinct ? "UNION" : "UNION ALL";
-		
+
 		return implode(" $join \n", $newsql);
 	}
 	// crmv@103023e
-	
+
 	/**
 	 * Clone a temporary table. This method only works for MySql
 	 */
@@ -1794,7 +1794,7 @@ class PearDatabase{
 		$this->query("INSERT INTO $newtable SELECT * FROM $table");
 	}
 	// crmv@113804e
-	
+
 	//crmv@add functions end
 	//crmv@offline
 	function get_sequences(){
@@ -1824,7 +1824,7 @@ class PearDatabase{
 	// crmv@90924
 	function getPartitions($table) {
 		$parts = array();
-		if ($this->isMysql()) {	
+		if ($this->isMysql()) {
 			$sql = "
 				SELECT partition_name, table_rows, partition_expression, partition_description
 				FROM INFORMATION_SCHEMA.PARTITIONS
@@ -1841,7 +1841,7 @@ class PearDatabase{
 			throw new Exception("Database type not supported");
 		}
 	}
-	
+
 	function hasPartition($table, $partName) {
 		$parts = $this->getPartitions($table);
 		foreach ($parts as $pinfo) {
@@ -1850,7 +1850,7 @@ class PearDatabase{
 		return false;
 	}
 	// crmv@90924e
-	
+
 	// crmv@197204
 	/**
 	 * Return possible values for each partition
@@ -1873,7 +1873,7 @@ class PearDatabase{
 		}
 		return $values;
 	}
-	
+
 	/**
 	 * Return true if the specified value is in any partition
 	 */
@@ -1886,7 +1886,7 @@ class PearDatabase{
 		return true;
 	}
 	// crmv@197204e
-	
+
 	// crmv@185894
 	function getSlaveObject(string $slaveFunction) {
 		$slaveHandler = SlaveHandler::getInstance();
@@ -2040,7 +2040,7 @@ class PearDatabase{
 		return $this->limitpQuery($sql, $start, $count, $params, $dieOnError, $msg);
 	}
 	// crmv@185894e
-	
+
 	// crmv@198024
 	/**
 	 * Return true if the database supports json functions
@@ -2056,7 +2056,7 @@ class PearDatabase{
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Generate an sql expression to extract values from a json-encoded column or null if not a valid json
 	 * Only mysql has been tested
@@ -2068,11 +2068,11 @@ class PearDatabase{
 			// not tested!
 			$sqlcolumn = "JSON_VALUE($column, '{$path}')";
 		}
-		
+
 		if ($emptyCheck) {
 			$sqlcolumn = "IF($column IS NULL OR $column = '', '', $sqlcolumn)";
 		}
-		
+
 		return $sqlcolumn;
 	}
 	// crmv@198024
