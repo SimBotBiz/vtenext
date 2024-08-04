@@ -29,12 +29,12 @@ if (isset($_REQUEST['admin_email'])) $_SESSION['installation_info']['admin_email
 if (isset($_REQUEST['admin_password'])) $_SESSION['installation_info']['admin_password'] = $admin_password = $_REQUEST['admin_password'];
 if (isset($_REQUEST['confirm_admin_password'])) $_SESSION['installation_info']['confirm_admin_password'] = $confirm_admin_password = $_REQUEST['confirm_admin_password'];	//crmv@28327
 
-if (isset($_REQUEST['create_utf8_db'])) 
+if (isset($_REQUEST['create_utf8_db']))
 	$_SESSION['installation_info']['create_utf8_db'] = $create_utf8_db = 'true';
-else 
+else
 	$_SESSION['installation_info']['create_utf8_db'] = $create_utf8_db = 'false';
 
-if (isset($_REQUEST['db_populate'])) 
+if (isset($_REQUEST['db_populate']))
 	$_SESSION['installation_info']['db_populate'] = $db_populate = 'true';
 else
 	$_SESSION['installation_info']['db_populate'] = $db_populate = 'false';
@@ -47,7 +47,7 @@ if(isset($currency_name)){
 $create_db = false;
 if(isset($_REQUEST['check_createdb']) && $_REQUEST['check_createdb'] == 'on') $create_db = true;
 
-$dbCheckResult = Installation_Utils::checkDbConnection($db_type, $db_hostname,$db_hostport,$db_username, $db_password, $db_name, $create_db, $create_utf8_db, $root_user, $root_password);
+$dbCheckResult = Installation_Utils::checkDbConnection($db_type, $db_hostname, $db_hostport, $db_username, $db_password, $db_name, $create_db, $create_utf8_db, $root_user, $root_password);
 $next = $dbCheckResult['flag'];
 $error_msg = $dbCheckResult['error_msg'];
 $error_msg_info = $dbCheckResult['error_msg_info'];
@@ -106,17 +106,17 @@ include_once "install/templates/overall/header.php";
 		<!-- crmv@28327e -->
 	</table>
 </div>
-						
+
 <div id="config" class="col-xs-12">
 	<div id="config-inner" class="col-xs-12">
 		<div class="col-xs-12 nopadding">
 			<div class="col-xs-12 nopadding">
-			
+
 				<div class="col-xs-12 col-md-6" style="padding-left:0px">
 					<div class="col-xs-12 nopadding">
 						<h3><?php echo $installationStrings['LBL_DATABASE_CONFIGURATION']; ?></h3>
 						<div class="spacer-20"></div>
-					
+
 						<table class="table">
 							<tr>
 								<td noWrap width="40%"><?php echo $installationStrings['LBL_DATABASE_TYPE']; ?></td>
@@ -138,12 +138,12 @@ include_once "install/templates/overall/header.php";
 						</table>
 					</div>
 				</div>
-				
+
 				<div class="col-xs-12 col-md-6" style="padding-right:0px">
 					<div class="col-xs-12 nopadding">
 						<h3><?php echo $installationStrings['LBL_SITE_CONFIGURATION']; ?></h3>
 						<div class="spacer-20"></div>
-						
+
 						<table class="table">
 							<tr>
 								<td width="40%"><?php echo $installationStrings['LBL_URL']; ?></td>
@@ -161,20 +161,20 @@ include_once "install/templates/overall/header.php";
 					</div>
 				</div>
 			</div>
-			
+
 		</div>
 	</div>
 </div>
-						
+
 <div id="nav-bar" class="col-xs-12 nopadding">
-	<div id="nav-bar-inner" class="col-xs-12">	
+	<div id="nav-bar-inner" class="col-xs-12">
 		<div class="col-xs-6 text-left">
 			<form action="install.php" method="post" name="form" id="form">
 				<input type="hidden" name="file" value="SetInstallationConfig.php">
 				<button class="crmbutton small edit btn-arrow-left"><?php echo $installationStrings['LBL_CHANGE']; ?></button>
 			</form>
 		</div>
-		
+
 		<div class="col-xs-6 text-right">
 			<?php if ($next) : ?>
 				<form action="install.php" method="post" name="form" id="form">
@@ -186,5 +186,5 @@ include_once "install/templates/overall/header.php";
 		</div>
 	</div>
 </div>
-	
+
 <?php include_once "install/templates/overall/footer.php"; ?>

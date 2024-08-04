@@ -1003,7 +1003,7 @@ class Common_Install_Wizard_Utils {
 	}
 
 	public static function constructHostname($dbtype, $hostname, $port) {
-		$port = trim($port) || ConfigFile_Utils::getDbDefaultPort($dbtype);
+		$port = trim($port) ?: ConfigFile_Utils::getDbDefaultPort($dbtype);
 		$separator = ConfigFile_Utils::getDbDefaultPortSeparator($dbtype);
 		return $hostname.$separator.$port;
 	}
